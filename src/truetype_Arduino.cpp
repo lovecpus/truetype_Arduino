@@ -46,7 +46,7 @@ uint8_t truetypeClass::setTtfFile(File _file, uint8_t _checkCheckSum){
   return 1;
 }
 
-void truetypeClass::setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebufferHeight, uint16_t _framebuffer_bit, uint8_t _framebufferDirection, uint8_t *_framebuffer) {
+void truetypeClass::setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebufferHeight, uint16_t _framebuffer_bit, uint8_t _framebufferDirection, uint16_t *_framebuffer) {
   this->displayWidth = _framebufferWidth;
   this->displayHeight = _framebufferHeight;
   this->framebufferBit = _framebuffer_bit;
@@ -58,6 +58,9 @@ void truetypeClass::setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebu
   }else{
     //Framebuffer bit direction: Horizontal
     switch(this->framebufferBit){
+      case 16: //16bit Horizontal
+        this->displayWidthFrame = this->displayWidth * 2;
+        break;
       case 8: //8bit Horizontal
         this->displayWidthFrame = this->displayWidth;
         break;
@@ -88,7 +91,7 @@ void truetypeClass::setTextBoundary(uint16_t _start_x, uint16_t _end_x, uint16_t
   this->end_y = _end_y;
 }
 
-void truetypeClass::setTextColor(uint8_t _onLine, uint8_t _inside){
+void truetypeClass::setTextColor(uint16_t _onLine, uint16_t _inside){
   this->colorLine = _onLine;
   this->colorInside = _inside;
 }
@@ -970,7 +973,7 @@ void truetypeClass::textDraw(int16_t _x, int16_t _y, const String _string){
   free(wcharacter);
 }
 
-void truetypeClass::addPixel(int16_t _x, int16_t _y, uint8_t _colorCode) {
+void truetypeClass::addPixel(int16_t _x, int16_t _y, uint16_t _colorCode) {
   //Serial.printf("addPix(%3d, %3d)\n", _x, _y);
   uint8_t *buf_ptr;
 
@@ -1004,38 +1007,11 @@ void truetypeClass::addPixel(int16_t _x, int16_t _y, uint8_t _colorCode) {
     return;
   }
 
-  if(this->framebufferDirection){
+  if (this->framebufferDirection) {
     //Framebuffer bit direction: Vertical
-  }else{
+  } else {
     //Framebuffer bit direction: Horizontal
-    switch(this->framebufferBit){
-      case 8: //8bit Horizontal
-        {
-          this->userFrameBuffer[(uint16_t)_x + (uint16_t)_y * this->displayWidthFrame] = _colorCode;
-        }
-        break;
-      case 4: //4bit Horizontal
-        {
-          buf_ptr = &this->userFrameBuffer[((uint16_t)_x / 2) + (uint16_t)_y * this->displayWidthFrame];
-          _colorCode = _colorCode & 0b00001111;
-
-          if ((uint16_t)_x % 2) {
-            *buf_ptr = (*buf_ptr & 0b00001111) + (_colorCode << 4);
-          } else {
-            *buf_ptr = (*buf_ptr & 0b11110000) + _colorCode;
-          }
-        }
-        break;
-      case 1: //1bit Horizontal
-      default:
-        {
-          buf_ptr = &this->userFrameBuffer[((uint16_t)_x / 8) + (uint16_t)_y * this->displayWidthFrame];
-          uint8_t bitMask = 0b10000000 >> ((uint16_t)_x % 8);
-          uint8_t bit = (_colorCode) ? (bitMask) : (0b00000000);
-          *buf_ptr = (*buf_ptr & ~bitMask) + bit;
-        }
-        break;
-    }
+    this->userFrameBuffer[(uint16_t)_x + (uint16_t)_y * this->displayWidth] = _colorCode;
   }
   return;
 }
