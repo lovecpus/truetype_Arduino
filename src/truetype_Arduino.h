@@ -150,11 +150,11 @@ class truetypeClass {
     truetypeClass();
 
     uint8_t setTtfFile(File _file, uint8_t _checkCheckSum = 0);
-    void setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebufferHeight, uint16_t _framebuffer_bit, uint8_t _framebufferDirection, uint8_t *_framebuffer);
+    void setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebufferHeight, uint16_t _framebuffer_bit, uint8_t _framebufferDirection, uint16_t *_framebuffer);
     void setCharacterSpacing(int16_t _characterSpace, uint8_t _kerning = 1);
     void setCharacterSize(uint16_t _characterSize);
     void setTextBoundary(uint16_t _start_x, uint16_t _end_x, uint16_t _end_y);
-    void setTextColor(uint8_t _onLine, uint8_t _inside);
+    void setTextColor(uint16_t _onLine, uint16_t _inside);
 #define setTextColour setTextColor //to satisfy a pedantic old Australian
     void setTextRotation(uint16_t _rotation);
 
@@ -257,16 +257,16 @@ class truetypeClass {
     int16_t start_x = 10;
     int16_t end_x = 300;
     int16_t end_y = 300;
-    uint16_t displayWidth = 400;
-    uint16_t displayHeight = 400;
-    uint16_t displayWidthFrame = 400;
+    uint16_t displayWidth = 800;
+    uint16_t displayHeight = 600;
+    uint16_t displayWidthFrame = 800;
     uint16_t framebufferBit = 8;
     uint8_t framebufferDirection = 0;
     uint8_t stringRotation = 0x00;
-    uint8_t colorLine = 0x00;
-    uint8_t colorInside = 0x00;
-    uint8_t *userFrameBuffer;
-    void addPixel(int16_t _x, int16_t _y, uint8_t _colorCode);
+    uint16_t colorLine = 0x00;
+    uint16_t colorInside = 0x00;
+    uint16_t *userFrameBuffer;
+    void addPixel(int16_t _x, int16_t _y, uint16_t _colorCode);
     void stringToWchar(String _string, wchar_t _charctor[]);
 
     uint8_t GetU8ByteCount(char _ch);
