@@ -756,7 +756,7 @@ void truetypeClass::addLine(int16_t _x0, int16_t _y0, int16_t _x1, int16_t _y1) 
   err = dx - dy;
 
   while (1) {
-    this->addPixel(_x0, _y0, this->colorLine);
+    this->addPixel(_x0, _y0, this->colorLine, 128);
     if ((_x0 == _x1) && (_y0 == _y1)) {
       break;
     }
@@ -939,7 +939,6 @@ void truetypeClass::textDraw(int16_t _x, int16_t _y, const wchar_t _character[])
     if(glyph.numberOfContours >= 0){
       //write framebuffer
       this->generateOutline(hMetric.leftSideBearing + _x, _y, width);
-
       //fill charctor
       this->fillGlyph(hMetric.leftSideBearing + _x, _y, width);
     }
@@ -973,7 +972,13 @@ void truetypeClass::textDraw(int16_t _x, int16_t _y, const String _string){
   free(wcharacter);
 }
 
-void truetypeClass::addPixel(int16_t _x, int16_t _y, uint16_t _colorCode) {
+struct C565 {
+  uint16_t  b:5;
+  uint16_t  g:6;
+  uint16_t  r:5;
+} __packed;
+
+void truetypeClass::addPixel(int16_t _x, int16_t _y, uint16_t _colorCode, uint8_t _alpha) {
   //Serial.printf("addPix(%3d, %3d)\n", _x, _y);
   uint8_t *buf_ptr;
 
@@ -1011,7 +1016,28 @@ void truetypeClass::addPixel(int16_t _x, int16_t _y, uint16_t _colorCode) {
     //Framebuffer bit direction: Vertical
   } else {
     //Framebuffer bit direction: Horizontal
+#if (0)
+    if (_alpha) {
+      uint16_t r1 = (_colorCode>> 0) & 0x1F;
+      uint16_t g1 = (_colorCode>> 5) & 0x3F;
+      uint16_t b1 = (_colorCode>>11) & 0x1F;
+
+      uint16_t &fb = this->userFrameBuffer[(uint16_t)_x + (uint16_t)_y * this->displayWidth];
+      uint16_t r2 = (fb>> 0) & 0x1F;
+      uint16_t g2 = (fb>> 5) & 0x3F;
+      uint16_t b2 = (fb>>11) & 0x1F;
+
+      uint16_t r3 = ((r1 * _alpha / 255) + (r2 * (255-_alpha) / 255)) & 0x1F;
+      uint16_t g3 = ((g1 * _alpha / 255) + (g2 * (255-_alpha) / 255)) & 0x3F;
+      uint16_t b3 = ((b1 * _alpha / 255) + (b2 * (255-_alpha) / 255)) & 0x1F;
+
+      fb = ((b3 << 11) | (g3 << 5) | r3 << 0);
+    } else {
+      this->userFrameBuffer[(uint16_t)_x + (uint16_t)_y * this->displayWidth] = _colorCode;
+    }
+#else
     this->userFrameBuffer[(uint16_t)_x + (uint16_t)_y * this->displayWidth] = _colorCode;
+#endif
   }
   return;
 }

@@ -153,6 +153,7 @@ class truetypeClass {
     void setFramebuffer(uint16_t _framebufferWidth, uint16_t _framebufferHeight, uint16_t _framebuffer_bit, uint8_t _framebufferDirection, uint16_t *_framebuffer);
     void setCharacterSpacing(int16_t _characterSpace, uint8_t _kerning = 1);
     void setCharacterSize(uint16_t _characterSize);
+    uint16_t getCharacterSize() { return characterSize; }
     void setTextBoundary(uint16_t _start_x, uint16_t _end_x, uint16_t _end_y);
     void setTextColor(uint16_t _onLine, uint16_t _inside);
 #define setTextColour setTextColor //to satisfy a pedantic old Australian
@@ -266,7 +267,7 @@ class truetypeClass {
     uint16_t colorLine = 0x00;
     uint16_t colorInside = 0x00;
     uint16_t *userFrameBuffer;
-    void addPixel(int16_t _x, int16_t _y, uint16_t _colorCode);
+    void addPixel(int16_t _x, int16_t _y, uint16_t _colorCode, uint8_t _alpha=0);
     void stringToWchar(String _string, wchar_t _charctor[]);
 
     uint8_t GetU8ByteCount(char _ch);
